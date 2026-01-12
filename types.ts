@@ -7,6 +7,8 @@ export enum AppStep {
   RESULTS
 }
 
+export type Language = 'fr' | 'en' | 'es' | 'de';
+
 export interface WeldingMachine {
   brand?: string;
   model?: string;
@@ -20,6 +22,7 @@ export interface Workpiece {
   jointType?: string;
   fillerMetalType?: string;
   fillerMetalDiameter?: string;
+  migWireDiameter?: string; // Spécifique au MIG
 }
 
 export interface AlternativeProcess {
@@ -31,7 +34,7 @@ export interface AlternativeProcess {
 export interface WeldingAdvice {
   amperage: string;
   voltage: string;
-  machineSetting?: string; // Pour les lettres A, B, C ou chiffres 1, 2, 3 sur les anciens postes
+  machineSetting?: string;
   wireSpeed?: string;
   gasFlow?: string;
   electrodeType?: string;
