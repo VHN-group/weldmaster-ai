@@ -8,6 +8,11 @@ interface PhotoCaptureProps {
   icon: string;
   isAnalyzing?: boolean;
   loadingMessage?: string;
+  labels: {
+    change: string;
+    capture: string;
+    engine: string;
+  };
 }
 
 export const PhotoCapture: React.FC<PhotoCaptureProps> = ({ 
@@ -16,7 +21,8 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
   description, 
   icon, 
   isAnalyzing = false,
-  loadingMessage = "Analyse en cours..."
+  loadingMessage = "Analyse en cours...",
+  labels
 }) => {
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +47,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
 
   return (
     <div 
-      className={`flex flex-col items-center justify-center p-8 bg-[#2d3a6d]/30 rounded-3xl border-2 border-dashed transition-all min-h-[300px] ${
+      className={`flex flex-col items-center justify-center p-8 bg-[#2d3a6d]/30 rounded-3xl border-2 border-dashed transition-all min-h-[300px] w-full ${
         isAnalyzing 
           ? 'border-[#f95a2c]/50 bg-[#f95a2c]/5 cursor-wait' 
           : 'border-slate-700 hover:border-[#f95a2c] cursor-pointer group'
@@ -63,7 +69,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           <p className="text-[#f95a2c] font-black uppercase italic tracking-tighter text-lg text-center drop-shadow-sm">
             {loadingMessage}
           </p>
-          <p className="text-slate-500 text-[10px] mt-4 font-bold uppercase tracking-[0.3em]">Moteur Gemini 3.0</p>
+          <p className="text-slate-500 text-[10px] mt-4 font-bold uppercase tracking-[0.3em]">{labels.engine} Gemini 3.0</p>
         </div>
       ) : (
         <>
@@ -71,7 +77,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
             <div className="relative w-full max-w-[200px] aspect-square rounded-2xl overflow-hidden mb-6 shadow-2xl border border-white/10">
               <img src={preview} alt="Capture preview" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-white font-bold text-sm uppercase tracking-widest">Changer</p>
+                <p className="text-white font-bold text-sm uppercase tracking-widest">{labels.change}</p>
               </div>
             </div>
           ) : (
@@ -86,7 +92,7 @@ export const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           {!preview && (
             <div className="mt-8 px-8 py-3 bg-[#f95a2c] group-hover:bg-[#ff7e56] text-white rounded-2xl font-black transition-all transform group-hover:scale-105 shadow-xl shadow-[#f95a2c]/20 uppercase italic tracking-tighter">
               <i className="fas fa-camera mr-2"></i>
-              Capturer
+              {labels.capture}
             </div>
           )}
         </>

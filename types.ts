@@ -35,6 +35,7 @@ export interface WeldingAdvice {
   amperage: string;
   voltage: string;
   machineSetting?: string;
+  machineProcedure?: string; // Marche à suivre physique sur le poste
   wireSpeed?: string;
   gasFlow?: string;
   electrodeType?: string;

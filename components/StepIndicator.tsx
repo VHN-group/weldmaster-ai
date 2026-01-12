@@ -1,17 +1,20 @@
 
 import React from 'react';
-import { AppStep } from '../types';
+import { AppStep, Language } from '../types';
+import { translations } from '../translations';
 
 interface StepIndicatorProps {
   currentStep: AppStep;
+  lang: Language;
 }
 
-export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
+export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, lang }) => {
+  const t = translations[lang];
   const steps = [
-    { id: AppStep.MACHINE_PHOTO, label: 'Poste' },
-    { id: AppStep.WORKPIECE_PHOTO, label: 'Pièces' },
-    { id: AppStep.DETAILS_CONFIRMATION, label: 'Validation' },
-    { id: AppStep.RESULTS, label: 'Réglages' }
+    { id: AppStep.MACHINE_PHOTO, label: t.stepPoste },
+    { id: AppStep.WORKPIECE_PHOTO, label: t.stepPieces },
+    { id: AppStep.DETAILS_CONFIRMATION, label: t.stepValidation },
+    { id: AppStep.RESULTS, label: t.stepReglages }
   ];
 
   return (
