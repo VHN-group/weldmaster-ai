@@ -506,7 +506,7 @@ const App: React.FC = () => {
                       {advice.tips && advice.tips.length > 0 && (
                         <div className="bg-blue-950/20 border border-blue-500/30 p-6 rounded-3xl space-y-4">
                           <h4 className="text-xs font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
-                             <i className="fas fa-lightbulb"></i>{t.conseilsLabel}
+                             <i className="fas fa-lightbulb text-amber-400"></i>{t.conseilsLabel}
                           </h4>
                           <ul className="space-y-2">
                             {advice.tips.map((tip, i) => (
