@@ -22,7 +22,7 @@ export interface Workpiece {
   jointType?: string;
   fillerMetalType?: string;
   fillerMetalDiameter?: string;
-  migWireDiameter?: string; // Spécifique au MIG
+  migWireDiameter?: string; // Spécifique au MIG/MAG
 }
 
 export interface AlternativeProcess {

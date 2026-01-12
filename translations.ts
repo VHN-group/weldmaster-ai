@@ -18,7 +18,7 @@ export const translations = {
     procede: "Procédé",
     matiere: "Matière",
     epaisseur: "Épaisseur",
-    migWireDiam: "Diamètre fil (MIG)",
+    migWireDiam: "Diamètre fil (MIG/MAG)",
     calculer: "Calculer les réglages",
     paramExperts: "Paramètres Experts",
     tension: "Tension de Soudage",
@@ -40,7 +40,9 @@ export const translations = {
     retakePhoto: "Reprendre une photo",
     unidentifiedPoste: "Poste non identifié",
     unidentifiedDesc: "L'IA n'a pas pu identifier clairement votre matériel. La photo est peut-être floue ou le modèle n'est pas répertorié.",
-    langName: "Français"
+    langName: "Français",
+    backHome: "Retour à l'accueil",
+    resultError: "Erreur de calcul"
   },
   en: {
     welcomeTitle: "SET YOUR WELDER IN 2 PHOTOS",
@@ -60,7 +62,7 @@ export const translations = {
     procede: "Process",
     matiere: "Material",
     epaisseur: "Thickness",
-    migWireDiam: "Wire Diameter (MIG)",
+    migWireDiam: "Wire Diameter (MIG/MAG)",
     calculer: "Calculate Settings",
     paramExperts: "Expert Parameters",
     tension: "Welding Voltage",
@@ -82,7 +84,9 @@ export const translations = {
     retakePhoto: "Retake Photo",
     unidentifiedPoste: "Unknown Welder",
     unidentifiedDesc: "AI could not clearly identify your equipment. The photo might be blurry or the model is not listed.",
-    langName: "English"
+    langName: "English",
+    backHome: "Back to Home",
+    resultError: "Calculation error"
   },
   es: {
     welcomeTitle: "AJUSTA TU SOLDADORA EN 2 FOTOS",
@@ -102,7 +106,7 @@ export const translations = {
     procede: "Proceso",
     matiere: "Material",
     epaisseur: "Espesor",
-    migWireDiam: "Diámetro hilo (MIG)",
+    migWireDiam: "Diámetro hilo (MIG/MAG)",
     calculer: "Calcular ajustes",
     paramExperts: "Parámetros expertos",
     tension: "Voltaje de soldadura",
@@ -124,7 +128,9 @@ export const translations = {
     retakePhoto: "Repetir foto",
     unidentifiedPoste: "Equipo no identificado",
     unidentifiedDesc: "La IA no pudo identificar claramente su equipo. La foto puede estar borrosa o el modelo no está registrado.",
-    langName: "Español"
+    langName: "Español",
+    backHome: "Volver al inicio",
+    resultError: "Error de cálculo"
   },
   de: {
     welcomeTitle: "SCHWEISSGERÄT IN 2 FOTOS EINSTELLEN",
@@ -144,7 +150,7 @@ export const translations = {
     procede: "Verfahren",
     matiere: "Material",
     epaisseur: "Dicke",
-    migWireDiam: "Drahtdurchmesser (MIG)",
+    migWireDiam: "Drahtdurchmesser (MIG/MAG)",
     calculer: "Einstellungen berechnen",
     paramExperts: "Expertenparameter",
     tension: "Schweißspannung",
@@ -166,6 +172,8 @@ export const translations = {
     retakePhoto: "Foto wiederholen",
     unidentifiedPoste: "Gerät nicht erkannt",
     unidentifiedDesc: "Die KI konnte Ihre Ausrüstung nicht eindeutig identifizieren. Das Foto ist möglicherweise unscharf oder das Modell ist nicht gelistet.",
-    langName: "Deutsch"
+    langName: "Deutsch",
+    backHome: "Zurück zum Start",
+    resultError: "Berechnungsfehler"
   }
 };

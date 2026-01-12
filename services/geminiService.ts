@@ -82,17 +82,17 @@ export const analyzeWorkpiece = async (base64Image: string): Promise<Workpiece> 
 export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpiece, lang: Language) => {
   try {
     const langName = getLanguageName(lang);
-    const prompt = `Act as a welding expert. Provide settings in ${langName}.
-    Welder: ${machine.brand} ${machine.model} (${machine.type})
+    const prompt = `Act as a welding expert. Provide all settings and advice strictly in ${langName}.
+    Welder: ${machine.brand} ${machine.model} (Process: ${machine.type})
     Material: ${workpiece.material}, Thickness: ${workpiece.thickness}.
     ${workpiece.migWireDiameter ? `MIG Wire Diameter: ${workpiece.migWireDiameter}mm` : ''}
-    ${workpiece.fillerMetalType ? `Consumable: ${workpiece.fillerMetalType} (${workpiece.fillerMetalDiameter}mm)` : ''}
+    ${workpiece.fillerMetalType ? `Selected consumable: ${workpiece.fillerMetalType} (Dia: ${workpiece.fillerMetalDiameter}mm)` : ''}
     
-    Requirements:
-    - If MIG/MAG: Provide Voltage, Wire Speed, and Machine Switch setting (A/B/1/2) if the welder is old.
-    - If Stick: Electrode type and polarity.
-    - Provide 2 alternatives.
-    - Safety precautions and tips in ${langName}.`;
+    Instructions:
+    - For MIG/MAG: Focus on Voltage and Wire Speed. Suggest the machine dial setting if applicable.
+    - For Stick: Suggest electrode type and polarity.
+    - Suggest 2 alternative processes.
+    - Include safety precautions and tips in ${langName}.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
@@ -124,7 +124,8 @@ export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpie
                 }
               }
             }
-          }
+          },
+          required: ["safetyPrecautions", "tips"]
         }
       }
     });

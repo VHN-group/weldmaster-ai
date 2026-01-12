@@ -113,6 +113,7 @@ const App: React.FC = () => {
       saveToHistory(machine, workpiece, data);
     } catch (err: any) {
       setError(err.message);
+      setStep(AppStep.RESULTS); // Transitionner quand même pour afficher l'erreur dédiée
     } finally {
       setIsLoading(false);
     }
@@ -175,8 +176,26 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSaveScreenshot = async () => {
+    if (!resultsRef.current) return;
+    try {
+      const canvas = await html2canvas(resultsRef.current, {
+        backgroundColor: '#1e284b',
+        scale: 2,
+        logging: false,
+        useCORS: true
+      });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `WeldMaster-Advice-${Date.now()}.png`;
+      link.click();
+    } catch (err) {}
+  };
+
   return (
     <div className="max-w-2xl mx-auto min-h-screen flex flex-col p-4 bg-[#1e284b] relative overflow-x-hidden">
+      {/* Machine Error Modal */}
       {showMachineErrorModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-[#2d3a6d] border border-white/10 rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl space-y-8 text-center animate-in zoom-in-95 duration-300">
@@ -188,8 +207,8 @@ const App: React.FC = () => {
               <p className="text-slate-300 text-sm font-medium leading-relaxed">{t.unidentifiedDesc}</p>
             </div>
             <div className="space-y-3">
-              <button onClick={() => { setShowMachineErrorModal(false); setError(null); }} className="w-full py-4 bg-[#f95a2c] text-white rounded-2xl font-black text-sm uppercase tracking-tighter italic shadow-lg transition-all active:scale-95">{t.retakePhoto}</button>
-              <button onClick={continueAnyway} className="w-full py-4 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-2xl font-black text-sm uppercase tracking-tighter italic transition-all active:scale-95">{t.manualCont}</button>
+              <button onClick={() => { setShowMachineErrorModal(false); setError(null); }} className="w-full py-4 bg-[#f95a2c] text-white rounded-2xl font-black text-sm uppercase tracking-tighter italic shadow-lg active:scale-95">{t.retakePhoto}</button>
+              <button onClick={continueAnyway} className="w-full py-4 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-2xl font-black text-sm uppercase tracking-tighter italic active:scale-95">{t.manualCont}</button>
             </div>
           </div>
         </div>
@@ -213,13 +232,13 @@ const App: React.FC = () => {
         {isLoading ? (
           <div className="flex flex-col items-center animate-pulse">
             <div className="w-16 h-16 border-4 border-[#f95a2c] border-t-transparent rounded-full animate-spin mb-6"></div>
-            <p className="text-[#f95a2c] font-bold text-lg italic uppercase text-center px-6">Gemini 3 Engine...</p>
+            <p className="text-[#f95a2c] font-bold text-lg italic uppercase text-center px-6">Optimisation...</p>
           </div>
         ) : (
           <>
             {step !== AppStep.WELCOME && <StepIndicator currentStep={step} />}
             
-            {error && !showMachineErrorModal && (
+            {error && !showMachineErrorModal && step !== AppStep.RESULTS && (
               <div className="w-full bg-red-900/40 border-2 border-red-500/50 p-6 rounded-3xl mb-8 text-red-100 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-300">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-2xl bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/30">
@@ -239,7 +258,7 @@ const App: React.FC = () => {
 
             {step === AppStep.WELCOME && !showHistory && (
               <div className="text-center space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-sm w-full">
-                {/* Language Switcher */}
+                {/* Language Selection */}
                 <div className="flex justify-center gap-2 p-1 bg-white/5 rounded-2xl w-fit mx-auto border border-white/10">
                   {(['fr', 'en', 'es', 'de'] as Language[]).map(l => (
                     <button
@@ -392,69 +411,99 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                <button onClick={finalizeAdvice} className="w-full py-5 bg-[#f95a2c] hover:bg-[#d84a22] text-white rounded-2xl font-black text-xl shadow-2xl transition-all transform active:scale-95 uppercase italic tracking-tighter">
+                <button onClick={finalizeAdvice} className="w-full py-5 bg-[#f95a2c] hover:bg-[#d84a22] text-white rounded-2xl font-black text-xl shadow-2xl uppercase italic tracking-tighter active:scale-95 transition-all">
                   {t.calculer}
                 </button>
               </div>
             )}
 
-            {step === AppStep.RESULTS && advice && (
-              <div className="w-full space-y-6 pb-12 animate-in fade-in zoom-in-95 duration-500">
-                <div ref={resultsRef} className="bg-[#1e284b] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                  <div className="bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] p-6">
-                    <h3 className="text-2xl font-black uppercase italic leading-none tracking-tighter">{t.paramExperts}</h3>
-                    <div className="mt-2 flex gap-2">
-                      <span className="px-2 py-1 bg-black/20 rounded-lg text-[9px] font-black uppercase">{getProcessName(machine?.type)}</span>
-                      <span className="px-2 py-1 bg-black/20 rounded-lg text-[9px] font-black uppercase">{workpiece?.thickness}mm</span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 space-y-8">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <p className="text-[10px] text-[#f95a2c] font-black uppercase tracking-widest mb-2">{isMig ? t.tension : t.intensite}</p>
-                        <p className="text-4xl font-black">{isMig ? advice.voltage : advice.amperage}<span className="text-xl text-slate-500 ml-1">{isMig ? 'V' : 'A'}</span></p>
-                      </div>
-                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2">{t.polarite}</p>
-                        <p className="text-2xl font-black">{advice.polarity || 'DC+'}</p>
+            {step === AppStep.RESULTS && (
+              advice ? (
+                <div className="w-full space-y-6 pb-12 animate-in fade-in zoom-in-95 duration-500">
+                  <div ref={resultsRef} className="bg-[#1e284b] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div className="bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] p-6">
+                      <h3 className="text-2xl font-black uppercase italic leading-none tracking-tighter drop-shadow-md">{t.paramExperts}</h3>
+                      <div className="mt-3 flex gap-2">
+                        <span className="px-2 py-1 bg-black/20 rounded-lg text-[9px] font-black uppercase tracking-widest border border-white/10">{getProcessName(machine?.type)}</span>
+                        <span className="px-2 py-1 bg-black/20 rounded-lg text-[9px] font-black uppercase tracking-widest border border-white/10">{workpiece?.thickness}mm</span>
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {advice.wireSpeed && (
-                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <p className="text-[10px] text-slate-500 font-black uppercase mb-1">{t.vitesseFil}</p>
-                          <p className="text-xl font-black">{advice.wireSpeed}</p>
+                    
+                    <div className="p-6 space-y-8">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                          <p className="text-[10px] text-[#f95a2c] font-black uppercase tracking-widest mb-2">{isMig ? t.tension : t.intensite}</p>
+                          <p className="text-4xl font-black text-white">{isMig ? advice.voltage : advice.amperage}<span className="text-xl text-slate-500 ml-1">{isMig ? 'V' : 'A'}</span></p>
                         </div>
-                      )}
-                      {advice.gasFlow && (
-                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <p className="text-[10px] text-slate-500 font-black uppercase mb-1">{t.protectionGaz}</p>
-                          <p className="text-sm font-bold text-white leading-tight">{advice.gasFlow}</p>
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
+                          <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2">{t.polarite}</p>
+                          <p className="text-2xl font-black text-white">{advice.polarity || 'DC+'}</p>
                         </div>
-                      )}
-                    </div>
+                      </div>
 
-                    <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-3xl space-y-4">
-                      <h4 className="text-xs font-black uppercase text-red-500 tracking-widest">{t.securite}</h4>
-                      <ul className="space-y-2">
-                        {advice.safetyPrecautions.map((p, i) => (
-                          <li key={i} className="text-[11px] text-slate-300 flex items-start gap-2">
-                            <span className="w-1 h-1 rounded-full bg-red-500 mt-1.5 shrink-0"></span>{p}
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {advice.wireSpeed && (
+                          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                            <i className="fas fa-gauge-high text-slate-500"></i>
+                            <div>
+                               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">{t.vitesseFil}</p>
+                               <p className="text-xl font-black text-white">{advice.wireSpeed}</p>
+                            </div>
+                          </div>
+                        )}
+                        {advice.gasFlow && (
+                          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                             <i className="fas fa-wind text-blue-400"></i>
+                             <div>
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">{t.protectionGaz}</p>
+                                <p className="text-sm font-bold text-white leading-tight">{advice.gasFlow}</p>
+                             </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="bg-red-950/20 border-2 border-red-500/30 p-6 rounded-3xl space-y-4 shadow-lg shadow-red-500/5">
+                        <div className="flex items-center gap-2">
+                           <i className="fas fa-shield-halved text-red-500"></i>
+                           <h4 className="text-xs font-black uppercase text-red-500 tracking-[0.2em]">{t.securite}</h4>
+                        </div>
+                        <ul className="space-y-2">
+                          {advice.safetyPrecautions.map((p, i) => (
+                            <li key={i} className="text-[11px] text-slate-300 flex items-start gap-3 leading-relaxed">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0"></span>{p}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-3">
-                  <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl transition-all transform active:scale-95 flex items-center justify-center gap-4 uppercase italic tracking-tighter">
-                    <i className="fas fa-plus text-xl"></i>{t.nouvelleAnalyse}
-                  </button>
+                  <div className="space-y-3">
+                    <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic tracking-tighter">
+                      <i className="fas fa-plus text-xl"></i>{t.nouvelleAnalyse}
+                    </button>
+                    <button onClick={handleSaveScreenshot} className="w-full py-3 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">{t.exporter}</button>
+                  </div>
                 </div>
-              </div>
+              ) : error ? (
+                <div className="w-full max-w-sm flex flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500 text-center mx-auto">
+                   <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center border border-red-500/20 shadow-xl shadow-red-500/5">
+                      <i className="fas fa-triangle-exclamation text-4xl text-red-500"></i>
+                   </div>
+                   <div className="space-y-3">
+                      <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white">{t.resultError}</h3>
+                      <p className="text-slate-400 text-sm font-medium leading-relaxed px-4">{error}</p>
+                   </div>
+                   <div className="w-full space-y-3">
+                      <button onClick={retryLastAction} className="w-full py-5 bg-[#f95a2c] text-white rounded-2xl font-black text-lg uppercase italic tracking-tighter shadow-lg active:scale-95 transition-all">
+                        {t.retry}
+                      </button>
+                      <button onClick={reset} className="w-full py-5 bg-white/5 border border-white/10 text-slate-300 rounded-2xl font-black text-lg uppercase italic tracking-tighter active:scale-95 transition-all">
+                        {t.backHome}
+                      </button>
+                   </div>
+                </div>
+              ) : null
             )}
           </>
         )}
