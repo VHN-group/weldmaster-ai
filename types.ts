@@ -18,11 +18,12 @@ export interface WeldingMachine {
 
 export interface Workpiece {
   material?: string;
-  thickness?: string;
+  thicknessA?: string;
+  thicknessB?: string;
   jointType?: string;
   fillerMetalType?: string;
   fillerMetalDiameter?: string;
-  migWireDiameter?: string; // Spécifique au MIG/MAG
+  migWireDiameter?: string;
 }
 
 export interface AlternativeProcess {
@@ -35,13 +36,14 @@ export interface WeldingAdvice {
   amperage: string;
   voltage: string;
   machineSetting?: string;
-  machineProcedure?: string; // Marche à suivre physique sur le poste
+  machineProcedure?: string;
   wireSpeed?: string;
   gasFlow?: string;
   electrodeType?: string;
   fillerMetalType?: string;
   fillerMetalDiameter?: string;
   polarity?: string;
+  inductance?: string;
   safetyPrecautions: string[];
   tips: string[];
   alternatives?: AlternativeProcess[];

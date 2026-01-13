@@ -46,7 +46,7 @@ export const analyzeWorkpiece = async (base64Image: string): Promise<Workpiece> 
     contents: {
       parts: [
         { inlineData: { data: base64Image, mimeType: 'image/jpeg' } },
-        { text: "Analyse ces pièces à souder (matière, épaisseur). Retourne en JSON." }
+        { text: "Analyse ces pièces à souder (matière, épaisseurs). Si les deux pièces ont des épaisseurs différentes, identifie-les. Retourne en JSON." }
       ]
     },
     config: {
@@ -56,9 +56,10 @@ export const analyzeWorkpiece = async (base64Image: string): Promise<Workpiece> 
         type: Type.OBJECT,
         properties: {
           material: { type: Type.STRING },
-          thickness: { type: Type.STRING }
+          thicknessA: { type: Type.STRING },
+          thicknessB: { type: Type.STRING }
         },
-        required: ["material", "thickness"]
+        required: ["material", "thicknessA"]
       }
     }
   });
@@ -68,15 +69,22 @@ export const analyzeWorkpiece = async (base64Image: string): Promise<Workpiece> 
 
 export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpiece, lang: Language) => {
   const langName = getLanguageName(lang);
+  const thicknessStr = workpiece.thicknessB && workpiece.thicknessB !== workpiece.thicknessA 
+    ? `Dissimilar thicknesses: ${workpiece.thicknessA}mm and ${workpiece.thicknessB}mm`
+    : `Thickness: ${workpiece.thicknessA}mm`;
+
   const prompt = `Act as a professional welding engineer. Provide all response text strictly in ${langName}.
   WELDER: ${machine.brand} ${machine.model} (Type: ${machine.type})
-  WORKPIECE: ${workpiece.material}, Thickness: ${workpiece.thickness}
+  WORKPIECE: ${workpiece.material}, ${thicknessStr}
   ${workpiece.migWireDiameter ? `MIG WIRE DIAMETER SELECTED BY USER: ${workpiece.migWireDiameter}mm` : ''}
   
-  Please provide optimal welding settings:
-  - For Stick (MMA): Electrode type (e.g., Rutile E6013, Basic E7018) and diameter.
-  - For MIG/MAG: Wire type (e.g., SG2 Steel, AlMg5) and diameter.
-  - For TIG: Tungsten electrode type (e.g., WL20 Blue) and diameter.
+  Please provide optimal welding settings with extreme technical precision:
+  - DO NOT MENTION 2T OR 4T TRIGGER MODES.
+  - DO NOT MENTION BURNBACK SETTINGS.
+  - If thicknesses are different, provide specific technique tips (e.g., arc direction, heat management for the thicker part).
+  - For Stick (MMA): Electrode type and diameter.
+  - For MIG/MAG: Wire type and diameter. REQUIREMENT: Specify Inductance setting.
+  - For TIG: Specify BOTH Tungsten electrode type AND Filler metal rod type. Include diameters for both.
   - Voltage, Amperage, Wire Speed as applicable.
   - machineProcedure: Provide a very brief step-by-step physical instruction on HOW to set these values on THIS specific welder model.
   - Safety advice and 2 alternative welding processes.
@@ -97,9 +105,10 @@ export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpie
           machineProcedure: { type: Type.STRING, description: "Detailed physical steps to set the machine buttons/dials." },
           wireSpeed: { type: Type.STRING },
           gasFlow: { type: Type.STRING },
-          electrodeType: { type: Type.STRING, description: "Electrode or wire type name." },
-          fillerMetalType: { type: Type.STRING, description: "Filler rod or consumable name." },
-          fillerMetalDiameter: { type: Type.STRING, description: "Diameter in mm." },
+          inductance: { type: Type.STRING },
+          electrodeType: { type: Type.STRING, description: "Tungsten type for TIG or Electrode for Stick" },
+          fillerMetalType: { type: Type.STRING, description: "Filler rod for TIG or Wire for MIG" },
+          fillerMetalDiameter: { type: Type.STRING },
           polarity: { type: Type.STRING },
           safetyPrecautions: { type: Type.ARRAY, items: { type: Type.STRING } },
           tips: { type: Type.ARRAY, items: { type: Type.STRING } },

@@ -81,6 +81,7 @@ const App: React.FC = () => {
       const data = await analyzeWorkpiece(base64);
       setWorkpiece({
         ...data,
+        thicknessB: data.thicknessB || data.thicknessA,
         fillerMetalType: '',
         fillerMetalDiameter: '',
         migWireDiameter: '0.8'
@@ -108,23 +109,6 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSaveScreenshot = async () => {
-    if (!resultsRef.current) return;
-    try {
-      const canvas = await html2canvas(resultsRef.current, {
-        backgroundColor: '#1e284b',
-        scale: 2,
-        logging: false,
-        useCORS: true
-      });
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement('a');
-      link.href = image;
-      link.download = `WeldMaster-Advice-${Date.now()}.png`;
-      link.click();
-    } catch (err) {}
   };
 
   const reset = () => {
@@ -162,17 +146,11 @@ const App: React.FC = () => {
     }
   };
 
-  /**
-   * Helper function to clean units from values returned by AI.
-   * Only removes the unit if it is at the end of the string to avoid 
-   * breaking terms like "Auto" (where removing 'A' would result in 'uto').
-   */
   const cleanUnit = (val?: string, unit?: string) => {
     if (!val || !unit) return val || '';
     const trimmed = val.trim();
     const u = unit.toLowerCase();
     const t = trimmed.toLowerCase();
-    
     if (t.endsWith(u)) {
       return trimmed.substring(0, trimmed.length - unit.length).trim();
     }
@@ -304,11 +282,17 @@ const App: React.FC = () => {
                             <i className="fas fa-layer-group opacity-50 text-blue-400"></i>{item.workpiece.material}
                           </span>
                           <span className="text-[9px] bg-white/5 border border-white/10 px-2 py-1 rounded-lg text-slate-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                            <i className="fas fa-ruler-vertical opacity-50 text-orange-400"></i>{item.workpiece.thickness}
+                            <i className="fas fa-ruler-vertical opacity-50 text-orange-400"></i>{formatDim(item.workpiece.thicknessA)}
                           </span>
                         </div>
                       </div>
-                      <button onClick={(e) => deleteHistoryItem(item.id, e)} className="w-8 h-8 rounded-full bg-red-500/10 text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><i className="fas fa-trash-can text-xs"></i></button>
+                      <button 
+                        onClick={(e) => deleteHistoryItem(item.id, e)} 
+                        className="w-10 h-10 rounded-full bg-red-500/10 text-red-500/60 hover:text-red-500 active:bg-red-500/20 transition-all flex items-center justify-center shrink-0 ml-2"
+                        aria-label="Delete history item"
+                      >
+                        <i className="fas fa-trash-can text-sm"></i>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -362,9 +346,14 @@ const App: React.FC = () => {
                       <label className="text-[10px] uppercase text-slate-500 font-bold tracking-widest">{t.matiere}</label>
                       <input className="w-full bg-[#1e284b] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#f95a2c] outline-none" value={workpiece.material || ''} onChange={(e) => setWorkpiece({...workpiece, material: e.target.value})} />
                     </div>
+                    <div></div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase text-slate-500 font-bold tracking-widest">{t.epaisseur}</label>
-                      <input className="w-full bg-[#1e284b] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#f95a2c] outline-none" value={workpiece.thickness || ''} onChange={(e) => setWorkpiece({...workpiece, thickness: e.target.value})} />
+                      <label className="text-[10px] uppercase text-slate-500 font-bold tracking-widest">{t.epaisseurA}</label>
+                      <input className="w-full bg-[#1e284b] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#f95a2c] outline-none" value={workpiece.thicknessA || ''} onChange={(e) => setWorkpiece({...workpiece, thicknessA: e.target.value})} />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase text-slate-500 font-bold tracking-widest">{t.epaisseurB}</label>
+                      <input className="w-full bg-[#1e284b] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#f95a2c] outline-none" value={workpiece.thicknessB || ''} placeholder="Optionnel" onChange={(e) => setWorkpiece({...workpiece, thicknessB: e.target.value})} />
                     </div>
 
                     {machine.type === 'MIG' && (
@@ -425,6 +414,13 @@ const App: React.FC = () => {
                              </div>
                           </div>
                           
+                          {advice.wireSpeed && (
+                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                              <span className="text-[10px] text-slate-400 uppercase font-black">{t.vitesseFil}</span>
+                              <span className="text-2xl font-black italic">{advice.wireSpeed}</span>
+                            </div>
+                          )}
+
                           {advice.machineProcedure && (
                             <div className="mt-2 p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex gap-3">
                                <div className="w-8 h-8 bg-[#f95a2c] rounded-lg flex items-center justify-center shrink-0">
@@ -439,7 +435,20 @@ const App: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Consommables Section - Optimized */}
+                      {isMig && advice.inductance && (
+                        <div className="bg-slate-800/40 p-5 rounded-3xl border border-white/10 space-y-4">
+                          <h4 className="text-[10px] font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
+                             <i className="fas fa-sliders"></i> Paramètres Avancés MIG/MAG
+                          </h4>
+                          <div className="grid grid-cols-1 gap-3 text-center">
+                            <div className="bg-white/5 p-3 rounded-2xl border border-white/5">
+                              <p className="text-[9px] text-slate-500 uppercase font-black mb-1">{t.inductance}</p>
+                              <p className="text-xs font-bold text-white">{advice.inductance}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="bg-slate-800/40 p-5 rounded-3xl border border-white/10 space-y-4">
                         <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                            <i className="fas fa-box-open"></i>{t.consommablesLabel}
@@ -461,7 +470,7 @@ const App: React.FC = () => {
                             <>
                               <div className="space-y-1">
                                  <p className="text-[10px] text-slate-500 uppercase font-black">{t.filLabel}</p>
-                                 <p className="text-sm font-bold text-white leading-tight">{advice.fillerMetalType || advice.electrodeType || 'N/A'}</p>
+                                 <p className="text-sm font-bold text-white leading-tight">{advice.fillerMetalType || 'N/A'}</p>
                               </div>
                               <div className="space-y-1">
                                  <p className="text-[10px] text-slate-500 uppercase font-black">{t.diametreLabel}</p>
@@ -471,7 +480,7 @@ const App: React.FC = () => {
                           )}
                           {isTig && (
                             <>
-                              <div className="space-y-1 col-span-2">
+                              <div className="space-y-1">
                                  <p className="text-[10px] text-slate-500 uppercase font-black">{t.tungstenLabel}</p>
                                  <p className="text-sm font-bold text-white leading-tight">{advice.electrodeType || 'N/A'}</p>
                               </div>
@@ -479,7 +488,7 @@ const App: React.FC = () => {
                                  <p className="text-[10px] text-slate-500 uppercase font-black">{t.fillerRodLabel}</p>
                                  <p className="text-sm font-bold text-white leading-tight">{advice.fillerMetalType || 'N/A'}</p>
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1 col-span-2 pt-2 border-t border-white/5">
                                  <p className="text-[10px] text-slate-500 uppercase font-black">{t.diametreLabel}</p>
                                  <p className="text-sm font-bold text-white">{formatDim(advice.fillerMetalDiameter)}</p>
                               </div>
@@ -488,20 +497,15 @@ const App: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-4">
-                        {advice.wireSpeed && (
-                          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-500 uppercase font-black">{t.vitesseFil}</span>
-                            <span className="text-xl font-black">{advice.wireSpeed}</span>
-                          </div>
-                        )}
-                        {advice.gasFlow && (
-                          <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex items-center justify-between">
+                      {advice.gasFlow && (
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <i className="fas fa-wind text-blue-400"></i>
                             <span className="text-[10px] text-slate-500 uppercase font-black">{t.protectionGaz}</span>
-                            <span className="text-sm font-bold text-white">{advice.gasFlow}</span>
                           </div>
-                        )}
-                      </div>
+                          <span className="text-sm font-bold text-white">{advice.gasFlow}</span>
+                        </div>
+                      )}
 
                       {advice.tips && advice.tips.length > 0 && (
                         <div className="bg-blue-950/20 border border-blue-500/30 p-6 rounded-3xl space-y-4">
@@ -540,6 +544,9 @@ const App: React.FC = () => {
                            <i className="fas fa-triangle-exclamation"></i>{t.securite}
                         </h4>
                         <ul className="space-y-2">
+                          <li className="text-[11px] text-red-400 flex items-start gap-2 leading-relaxed font-bold italic">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0"></span>{t.aiWarning}
+                          </li>
                           {advice.safetyPrecautions.map((p, i) => (
                             <li key={i} className="text-[11px] text-slate-300 flex items-start gap-2 leading-relaxed">
                               <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0"></span>{p}
@@ -553,7 +560,6 @@ const App: React.FC = () => {
                     <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic tracking-tighter">
                       <i className="fas fa-plus"></i>{t.nouvelleAnalyse}
                     </button>
-                    <button onClick={handleSaveScreenshot} className="w-full py-3 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">{t.exporter}</button>
                   </div>
                 </div>
               ) : error ? (
@@ -579,7 +585,7 @@ const App: React.FC = () => {
           </>
         )}
       </main>
-      <footer className="py-8 text-center border-t border-white/5 opacity-40">
+      <footer className="py-8 flex flex-col items-center gap-4 border-t border-white/5 opacity-60">
         <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.5em]">WELDMASTER AI &bull; 2025</p>
       </footer>
     </div>
