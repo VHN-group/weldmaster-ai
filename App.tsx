@@ -560,10 +560,13 @@ const App: React.FC = () => {
                     <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic tracking-tighter">
                       <i className="fas fa-plus"></i>{t.nouvelleAnalyse}
                     </button>
+                    <p className="text-center text-slate-500 text-[11px] font-medium leading-relaxed italic animate-in fade-in slide-in-from-top-2 duration-700">
+                      <i className="fas fa-history mr-2 opacity-50"></i>{t.historySavedNote}
+                    </p>
                   </div>
                 </div>
               ) : error ? (
-                <div className="w-full max-w-sm flex flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500 text-center mx-auto">
+                <div className="w-full max-sm flex flex-col items-center gap-8 animate-in fade-in zoom-in-95 duration-500 text-center mx-auto">
                    <div className="w-24 h-24 rounded-[2rem] bg-red-500/10 flex items-center justify-center border border-red-500/20">
                       <i className="fas fa-triangle-exclamation text-4xl text-red-500"></i>
                    </div>
