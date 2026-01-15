@@ -29,14 +29,17 @@
 }
 </script>
 <script>
-    // Fonction globale appelée par la couche native (Android/iOS)
+    // Fonction globale demandée pour recevoir le statut Premium
     function setPremiumStatus(isPremium) {
         if (isPremium) {
            console.log("Utilisateur Premium !");
+           // Cachez le bouton d'abonnement ici (géré par React via l'événement)
         } else {
            console.log("Utilisateur Gratuit");
+           // Affichez le bouton d'abonnement (géré par React via l'événement)
         }
-        // Dispatch d'un événement personnalisé pour que React puisse mettre à jour son état
+        
+        // Dispatch d'un événement personnalisé pour que React puisse mettre à jour son état de manière réactive
         window.dispatchEvent(new CustomEvent('premium-status-changed', { detail: !!isPremium }));
     }
 </script>

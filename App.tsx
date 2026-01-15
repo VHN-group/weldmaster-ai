@@ -50,13 +50,13 @@ const App: React.FC = () => {
     setStep(AppStep.MACHINE_PHOTO);
   };
 
-  const launchPurchase = () => {
-    // Appel direct à l'interface native comme demandé
+  // Fonction pour appeler la méthode native demandée
+  const handleLaunchPurchase = () => {
     if ((window as any).AndroidApp && (window as any).AndroidApp.launchPurchase) {
       (window as any).AndroidApp.launchPurchase();
     } else {
-      console.warn("AndroidApp.launchPurchase() non détecté.");
-      // Pour le test dans un navigateur standard, on peut simuler :
+      console.warn("AndroidApp.launchPurchase() non détecté dans cet environnement.");
+      // Pour debug web uniquement :
       // (window as any).setPremiumStatus(true);
     }
   };
@@ -270,7 +270,7 @@ const App: React.FC = () => {
 
                   {!isPremium && (
                     <button 
-                      onClick={launchPurchase} 
+                      onClick={handleLaunchPurchase} 
                       className="w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-600 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 flex items-center justify-center gap-3 uppercase italic tracking-tighter transition-all border border-amber-300/30"
                     >
                       <i className="fas fa-crown"></i>
@@ -590,6 +590,7 @@ const App: React.FC = () => {
                     <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic tracking-tighter">
                       <i className="fas fa-plus"></i>{t.nouvelleAnalyse}
                     </button>
+                    {/* Mention de sauvegarde demandée */}
                     <p className="text-center text-slate-500 text-[11px] font-medium leading-relaxed italic animate-in fade-in slide-in-from-top-2 duration-700">
                       <i className="fas fa-history mr-2 opacity-50"></i>{t.historySavedNote}
                     </p>
