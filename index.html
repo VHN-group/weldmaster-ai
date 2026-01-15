@@ -29,17 +29,28 @@
 }
 </script>
 <script>
-    // Fonction globale demandée pour recevoir le statut Premium
+    // Fonction demandée pour l'achat Premium
+    function buyPremium() {
+    try {
+        // On force l'appel au pont Android
+        window.AndroidApp.launchPurchase();
+    } catch (e) {
+        // Si on est sur un navigateur classique (PC/Chrome), on arrive ici
+        console.log("Erreur ou navigateur web : " + e);
+        alert("Application Android non détectée");
+    }
+    // Fonction de réception du statut Premium
     function setPremiumStatus(isPremium) {
+        const badge = document.getElementById("premium-badge");
         if (isPremium) {
-           console.log("Utilisateur Premium !");
-           // Cachez le bouton d'abonnement ici (géré par React via l'événement)
+            console.log("Utilisateur Premium !");
+            if (badge) badge.style.display = "block";
         } else {
-           console.log("Utilisateur Gratuit");
-           // Affichez le bouton d'abonnement (géré par React via l'événement)
+            console.log("Utilisateur Gratuit");
+            if (badge) badge.style.display = "none";
         }
         
-        // Dispatch d'un événement personnalisé pour que React puisse mettre à jour son état de manière réactive
+        // Dispatch d'un événement pour informer React
         window.dispatchEvent(new CustomEvent('premium-status-changed', { detail: !!isPremium }));
     }
 </script>
