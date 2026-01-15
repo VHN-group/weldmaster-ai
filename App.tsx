@@ -5,7 +5,6 @@ import { analyzeMachine, analyzeWorkpiece, getFinalAdvice } from './services/gem
 import { StepIndicator } from './components/StepIndicator';
 import { PhotoCapture } from './components/PhotoCapture';
 import { translations } from './translations';
-import html2canvas from 'html2canvas';
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('fr');
@@ -18,6 +17,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const t = translations[lang];
@@ -29,6 +29,14 @@ const App: React.FC = () => {
       try { setHistory(JSON.parse(saved)); } catch (e) {}
     }
     if (savedLang) setLang(savedLang as Language);
+
+    // Écouteur pour le changement de statut premium venant du script global index.html
+    const handlePremiumChange = (e: any) => {
+      setIsPremium(e.detail);
+    };
+    window.addEventListener('premium-status-changed', handlePremiumChange);
+    
+    return () => window.removeEventListener('premium-status-changed', handlePremiumChange);
   }, []);
 
   const changeLang = (l: Language) => {
@@ -40,6 +48,17 @@ const App: React.FC = () => {
     setShowHistory(false);
     setError(null);
     setStep(AppStep.MACHINE_PHOTO);
+  };
+
+  const launchPurchase = () => {
+    // Appel direct à l'interface native comme demandé
+    if ((window as any).AndroidApp && (window as any).AndroidApp.launchPurchase) {
+      (window as any).AndroidApp.launchPurchase();
+    } else {
+      console.warn("AndroidApp.launchPurchase() non détecté.");
+      // Pour le test dans un navigateur standard, on peut simuler :
+      // (window as any).setPremiumStatus(true);
+    }
   };
 
   const saveToHistory = (m: WeldingMachine, w: Workpiece, a: WeldingAdvice) => {
@@ -248,6 +267,17 @@ const App: React.FC = () => {
                   <button onClick={startAnalysis} className="w-full py-6 bg-[#f95a2c] hover:bg-[#d84a22] text-white rounded-3xl font-black text-xl shadow-2xl active:scale-95 flex items-center justify-center gap-4 uppercase italic tracking-tighter transition-all">
                     <i className="fas fa-camera text-2xl"></i>{t.startBtn}
                   </button>
+
+                  {!isPremium && (
+                    <button 
+                      onClick={launchPurchase} 
+                      className="w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-600 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 flex items-center justify-center gap-3 uppercase italic tracking-tighter transition-all border border-amber-300/30"
+                    >
+                      <i className="fas fa-crown"></i>
+                      {t.premiumBtn}
+                    </button>
+                  )}
+
                   {history.length > 0 && (
                     <button onClick={() => setShowHistory(true)} className="w-full py-4 bg-white/5 hover:bg-white/10 text-slate-300 rounded-2xl font-bold text-sm border border-white/10 transition-all flex items-center justify-center gap-3">
                       <i className="fas fa-history text-[#f95a2c]"></i>{t.historyBtn} ({history.length})

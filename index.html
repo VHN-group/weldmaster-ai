@@ -28,6 +28,18 @@
   }
 }
 </script>
+<script>
+    // Fonction globale appelée par la couche native (Android/iOS)
+    function setPremiumStatus(isPremium) {
+        if (isPremium) {
+           console.log("Utilisateur Premium !");
+        } else {
+           console.log("Utilisateur Gratuit");
+        }
+        // Dispatch d'un événement personnalisé pour que React puisse mettre à jour son état
+        window.dispatchEvent(new CustomEvent('premium-status-changed', { detail: !!isPremium }));
+    }
+</script>
 </head>
 <body class="bg-[#1e284b] text-slate-100 min-h-screen overscroll-none select-none">
     <div id="root"></div>
