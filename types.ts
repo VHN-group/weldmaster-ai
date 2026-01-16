@@ -38,6 +38,7 @@ export interface WeldingAdvice {
   machineSetting?: string;
   machineProcedure?: string;
   wireSpeed?: string;
+  gasType?: string;
   gasFlow?: string;
   electrodeType?: string;
   fillerMetalType?: string;

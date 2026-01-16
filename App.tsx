@@ -441,6 +441,25 @@ const App: React.FC = () => {
                         )}
                       </div>
 
+                      {/* Section Gaz de Protection (Nouveau) */}
+                      {(isMig || isTig) && (
+                        <div className="bg-blue-900/10 border border-blue-500/30 p-5 rounded-3xl space-y-4">
+                          <h4 className="text-xs font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
+                            <i className="fas fa-wind"></i> {t.protectionGaz}
+                          </h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <p className="text-[9px] text-slate-500 uppercase font-black mb-1">Type de Gaz</p>
+                              <p className="text-sm font-bold text-white leading-tight">{advice.gasType || 'Standard'}</p>
+                            </div>
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <p className="text-[9px] text-slate-500 uppercase font-black mb-1">Débit Recommandé</p>
+                              <p className="text-sm font-bold text-white">{advice.gasFlow || '8-12 L/min'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Consommables */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
@@ -471,7 +490,7 @@ const App: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Procédés Alternatifs (Nouveau) */}
+                      {/* Procédés Alternatifs */}
                       {advice.alternatives && advice.alternatives.length > 0 && (
                         <div className="bg-indigo-950/20 border border-indigo-500/30 p-6 rounded-3xl space-y-4">
                           <h4 className="text-xs font-black uppercase text-indigo-400 tracking-widest flex items-center gap-2">
@@ -491,7 +510,7 @@ const App: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Sécurité et Disclaimer (Nouveau / Renforcé) */}
+                      {/* Sécurité et Disclaimer */}
                       <div className="bg-red-950/20 border border-red-500/40 p-6 rounded-3xl space-y-4">
                         <h4 className="text-xs font-black uppercase text-red-500 tracking-widest flex items-center gap-2">
                            <i className="fas fa-shield-halved"></i>{t.securite}

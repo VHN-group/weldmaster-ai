@@ -83,8 +83,8 @@ export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpie
   - DO NOT MENTION BURNBACK SETTINGS.
   - If thicknesses are different, provide specific technique tips (e.g., arc direction, heat management for the thicker part).
   - For Stick (MMA): Electrode type and diameter.
-  - For MIG/MAG: Wire type and diameter. REQUIREMENT: Specify Inductance setting.
-  - For TIG: Specify BOTH Tungsten electrode type AND Filler metal rod type. Include diameters for both.
+  - For MIG/MAG: Wire type and diameter. Specify Inductance setting. MANDATORY: Specify Gas Type (e.g., Ar/CO2 80/20) and Gas Flow in L/min.
+  - For TIG: Specify BOTH Tungsten electrode type AND Filler metal rod type. Include diameters for both. MANDATORY: Specify Gas Type (Pure Argon) and Gas Flow in L/min.
   - Voltage, Amperage, Wire Speed as applicable.
   - machineProcedure: Provide a very brief step-by-step physical instruction on HOW to set these values on THIS specific welder model.
   - Safety advice and 2 alternative welding processes.
@@ -104,7 +104,8 @@ export const getFinalAdvice = async (machine: WeldingMachine, workpiece: Workpie
           machineSetting: { type: Type.STRING },
           machineProcedure: { type: Type.STRING, description: "Detailed physical steps to set the machine buttons/dials." },
           wireSpeed: { type: Type.STRING },
-          gasFlow: { type: Type.STRING },
+          gasType: { type: Type.STRING, description: "The specific shielding gas to use (e.g., Ar/CO2 82/18, Pure Argon)." },
+          gasFlow: { type: Type.STRING, description: "Flow rate in L/min (e.g., 12-15 L/min)." },
           inductance: { type: Type.STRING },
           electrodeType: { type: Type.STRING, description: "Tungsten type for TIG or Electrode for Stick" },
           fillerMetalType: { type: Type.STRING, description: "Filler rod for TIG or Wire for MIG" },
