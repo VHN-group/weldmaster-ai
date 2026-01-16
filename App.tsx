@@ -30,7 +30,6 @@ const App: React.FC = () => {
     }
     if (savedLang) setLang(savedLang as Language);
 
-    // Écouteur pour le changement de statut premium venant du pont natif
     const handlePremiumChange = (e: any) => {
       setIsPremium(e.detail);
     };
@@ -50,7 +49,6 @@ const App: React.FC = () => {
     setStep(AppStep.MACHINE_PHOTO);
   };
 
-  // Déclenchement de l'achat via la fonction globale définie dans index.html
   const handlePremiumClick = () => {
     if (typeof (window as any).buyPremium === "function") {
       (window as any).buyPremium();
@@ -397,11 +395,19 @@ const App: React.FC = () => {
               advice ? (
                 <div className="w-full space-y-6 pb-12 animate-in fade-in zoom-in-95 duration-500">
                   <div ref={resultsRef} className="bg-[#1e284b] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                    <div className="bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] p-6">
-                      <h3 className="text-2xl font-black uppercase italic leading-none tracking-tighter drop-shadow-md">{t.paramExperts}</h3>
-                      <p className="mt-1 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em]">{getProcessName(machine?.type)} • AI Powered</p>
+                    <div className="bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] p-6 flex justify-between items-center">
+                      <div>
+                        <h3 className="text-2xl font-black uppercase italic leading-none tracking-tighter drop-shadow-md">{t.paramExperts}</h3>
+                        <p className="mt-1 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em]">AI Powered Analysis</p>
+                      </div>
+                      <div className="bg-black/20 px-4 py-2 rounded-2xl border border-white/10 backdrop-blur-sm">
+                        <span className="text-[10px] text-white/60 font-black uppercase block tracking-widest">{t.procede}</span>
+                        <span className="text-sm font-black text-white italic uppercase tracking-tighter">{getProcessName(machine?.type)}</span>
+                      </div>
                     </div>
+                    
                     <div className="p-6 space-y-6">
+                      {/* Paramètres Principaux */}
                       <div className="bg-white/5 p-5 rounded-3xl border border-white/10 flex flex-col gap-4">
                         <div className="flex justify-between items-start">
                           <div>
@@ -435,6 +441,21 @@ const App: React.FC = () => {
                         )}
                       </div>
 
+                      {/* Consommables */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <p className="text-[9px] text-slate-500 uppercase font-black mb-1">{t.consommablesLabel}</p>
+                          <p className="text-xs font-bold text-white leading-tight">
+                            {advice.electrodeType || advice.fillerMetalType || 'Standard'}
+                          </p>
+                        </div>
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <p className="text-[9px] text-slate-500 uppercase font-black mb-1">{t.diametreLabel}</p>
+                          <p className="text-xs font-bold text-white">{advice.fillerMetalDiameter || 'N/A'}</p>
+                        </div>
+                      </div>
+
+                      {/* Conseils IA */}
                       {advice.tips && advice.tips.length > 0 && (
                         <div className="bg-blue-950/20 border border-blue-500/30 p-6 rounded-3xl space-y-4">
                           <h4 className="text-xs font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
@@ -449,9 +470,62 @@ const App: React.FC = () => {
                           </ul>
                         </div>
                       )}
+
+                      {/* Procédés Alternatifs (Nouveau) */}
+                      {advice.alternatives && advice.alternatives.length > 0 && (
+                        <div className="bg-indigo-950/20 border border-indigo-500/30 p-6 rounded-3xl space-y-4">
+                          <h4 className="text-xs font-black uppercase text-indigo-400 tracking-widest flex items-center gap-2">
+                             <i className="fas fa-shuffle"></i>{t.alternativesLabel}
+                          </h4>
+                          <div className="space-y-4">
+                            {advice.alternatives.map((alt, i) => (
+                              <div key={i} className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                <p className="text-[10px] font-black text-indigo-300 uppercase mb-1">{alt.processName}</p>
+                                <p className="text-[11px] text-slate-300 mb-2 leading-tight">{alt.description}</p>
+                                <div className="text-[9px] bg-black/30 p-2 rounded text-slate-400 font-mono">
+                                  {alt.mainSettings}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Sécurité et Disclaimer (Nouveau / Renforcé) */}
+                      <div className="bg-red-950/20 border border-red-500/40 p-6 rounded-3xl space-y-4">
+                        <h4 className="text-xs font-black uppercase text-red-500 tracking-widest flex items-center gap-2">
+                           <i className="fas fa-shield-halved"></i>{t.securite}
+                        </h4>
+                        
+                        <div className="space-y-3">
+                           {/* Précautions spécifiques de l'IA */}
+                           {advice.safetyPrecautions && advice.safetyPrecautions.length > 0 && (
+                             <ul className="space-y-2 mb-4 border-b border-red-500/20 pb-4">
+                               {advice.safetyPrecautions.map((precaution, i) => (
+                                 <li key={i} className="text-[11px] text-slate-200 flex items-start gap-2 leading-relaxed font-semibold italic">
+                                   <i className="fas fa-circle-exclamation text-red-500 mt-0.5 text-[10px]"></i>
+                                   {precaution}
+                                 </li>
+                               ))}
+                             </ul>
+                           )}
+
+                           {/* Disclaimer Global */}
+                           <div className="space-y-2">
+                              <p className="text-[10px] text-red-400 uppercase font-black tracking-widest opacity-80">{t.warning}</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed italic border-l-2 border-red-500/30 pl-3">
+                                {t.disclaimer}
+                              </p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed italic border-l-2 border-red-500/30 pl-3">
+                                {t.aiWarning}
+                              </p>
+                           </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3">
+
+                  <div className="flex flex-col gap-3 px-4">
                     <button onClick={reset} className="w-full py-6 bg-gradient-to-r from-[#f95a2c] to-[#ff7e56] text-white rounded-[2rem] font-black text-2xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic tracking-tighter">
                       <i className="fas fa-plus" />{t.nouvelleAnalyse}
                     </button>

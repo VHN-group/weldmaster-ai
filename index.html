@@ -31,14 +31,19 @@
 <script>
     // Fonction demandée pour l'achat Premium
     function buyPremium() {
-    try {
-        // On force l'appel au pont Android
-        window.AndroidApp.launchPurchase();
-    } catch (e) {
-        // Si on est sur un navigateur classique (PC/Chrome), on arrive ici
-        console.log("Erreur ou navigateur web : " + e);
-        alert("Application Android non détectée");
+        try {
+            // On force l'appel au pont Android
+            if (window.AndroidApp && window.AndroidApp.launchPurchase) {
+                window.AndroidApp.launchPurchase();
+            } else {
+                throw new Error("Bridge non trouvé");
+            }
+        } catch (e) {
+            console.log("Erreur ou navigateur web : " + e);
+            alert("Application Android non détectée");
+        }
     }
+
     // Fonction de réception du statut Premium
     function setPremiumStatus(isPremium) {
         const badge = document.getElementById("premium-badge");
