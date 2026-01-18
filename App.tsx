@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const t = translations[lang];
 
   useEffect(() => {
+    // Restauration de l'historique et de la langue
     const saved = localStorage.getItem('weldmaster_history');
     const savedLang = localStorage.getItem('weldmaster_lang');
     if (saved) {
@@ -30,10 +31,20 @@ const App: React.FC = () => {
     }
     if (savedLang) setLang(savedLang as Language);
 
+    // Gestion du statut premium via l'événement personnalisé
     const handlePremiumChange = (e: any) => {
       setIsPremium(e.detail);
     };
     window.addEventListener('premium-status-changed', handlePremiumChange);
+
+    // Notification au pont natif si présent
+    if ((window as any).AndroidApp && (window as any).FlutterBridge) {
+      try {
+        (window as any).FlutterBridge.postMessage('urlChanged');
+      } catch (err) {
+        console.error("Erreur bridge:", err);
+      }
+    }
     
     return () => window.removeEventListener('premium-status-changed', handlePremiumChange);
   }, []);
@@ -441,7 +452,7 @@ const App: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Section Gaz de Protection (Nouveau) */}
+                      {/* Section Gaz de Protection */}
                       {(isMig || isTig) && (
                         <div className="bg-blue-900/10 border border-blue-500/30 p-5 rounded-3xl space-y-4">
                           <h4 className="text-xs font-black uppercase text-blue-400 tracking-widest flex items-center gap-2">
