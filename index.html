@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WeldMaster AI</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e284b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WeldMaster">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1835/1835104.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "html2canvas": "https://esm.sh/html2canvas@1.4.1"
+  }
+}
+</script>
+<script>
+    // Fonction demandée pour l'achat Premium
+    function buyPremium() {
+        try {
+            // On force l'appel au pont Android
+            if (window.AndroidApp && window.AndroidApp.launchPurchase) {
+                window.AndroidApp.launchPurchase();
+            } else {
+                throw new Error("Bridge non trouvé");
+            }
+        } catch (e) {
+            console.log("Erreur ou navigateur web : " + e);
+            alert("Application Android non détectée");
+        }
+    }
+
+    // Fonction de réception du statut Premium
+    function setPremiumStatus(isPremium) {
+        const badge = document.getElementById("premium-badge");
+        if (isPremium) {
+            console.log("Utilisateur Premium !");
+            if (badge) badge.style.display = "block";
+        } else {
+            console.log("Utilisateur Gratuit");
+            if (badge) badge.style.display = "none";
+        }
+        
+        // Dispatch d'un événement pour informer React
+        window.dispatchEvent(new CustomEvent('premium-status-changed', { detail: !!isPremium }));
+    }
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-[#1e284b] text-slate-100 min-h-screen overscroll-none select-none">
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "WeldMaster AI Assistant",
+  "description": "Une application d'aide à la soudure intelligente qui analyse votre matériel et vos pièces pour vous donner les réglages optimaux via l'IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
